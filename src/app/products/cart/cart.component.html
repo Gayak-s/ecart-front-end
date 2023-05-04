@@ -1,0 +1,169 @@
+<!-- empty Cart design -->
+<div *ngIf="allCartItems.length == 0" class="contanier mt-5">
+    <div class="row mt-5">
+        <div class="col text-center mt-5">
+            <img src="https://bestmobilephone.co.nz/img/addto%20cart.gif" alt="gif">
+            <h3 class="text-danger mt-3">Your Cart is Empty!!!!</h3>
+            <a class="btn btn-success text" routerLink="">Go shop</a>
+        </div>
+    </div>
+</div>
+
+
+<!-- cart design -->
+<div *ngIf="allCartItems.length !=0" class="cart-table">
+    <h3 class="text-center text-decoration-underline">Cart Summery</h3>
+    <div class="row mt-5">
+        <!-- table -->
+        <div class="col-md-6 border p-3 rounded">
+            <table class=" border table mt-">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng *ngFor="let item of allCartItems; let i=index;">
+                        <th>{{i+1}}</th>
+                        <th>{{item.title}}</th>
+                        <th>
+                            <img width="50px" height="50px" [src]="item.image" [alt]="item.title">
+                        </th>
+                        <th>
+                            <div class="d-flex">
+                                <!-- decrement quantity btn -->
+                                <button (click)="decrement(item.id)" class="btn fw-bolder">-</button>
+                                <!-- quantity box -->
+                                <input class="form-control text-center me-3" id="InputQuantity" type="num" [value]="item.quantity" style="max-width: 30rem;" readonly>
+                                 <!-- increment quantity btn -->
+                                <button (click)="increment(item.id)" class="btn fw-bolder">+</button>
+                            </div>
+                        </th>
+                        <th>{{item.grantTotal}}</th>
+                        <th>
+                            <button (click)="removeitem(item.id)" class="btn"><i class="fa-solid fa-trash text-danger"></i></button>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- More Action -->
+            <div class="d-flex justify-content-end">
+                <!-- clear cart -->
+                <button (click)="emptyCart()" class="btn btn-warning me-3"> <i class="fa-solid fa-trash"></i> Clear Cart</button>
+                <!-- shop more -->
+                <a class="btn btn-success" routerLink="">Shop more</a>
+            </div>
+        </div>
+        <div class="col"></div>
+        <!-- summary -->
+        <div class="col-md-4 rounded p-3 ">
+            <div class="border rounded p-3">
+                <h4 class="text-success">Sub total:<b>$ {{CartTotalPrice}}</b></h4>
+                    <!-- offers -->
+                <hr>
+                <!-- checkout button -->
+                <div class="d-grid">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Check Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- checkout modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-primary" id="staticBackdropLabel">Check out Details</h1>
+          <button (click)="modalclose()" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div  *ngIf="!proceedToBtnStatus" class="modal-body">
+          <h6 class="text-success">Enter Your Delivery Address</h6>
+          <div class="border rounded-2 p-2">
+            <form [formGroup]="addressFrom" (ngSubmit)="delivery()">
+                  <div class="form-floating mb-3">
+                    <input type="text" name="username" formControlName="username" class="form-control" id="floatingInput" placeholder="Username" required>
+                    <label for="floatingInput">Username</label>
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input type="text" name="flat" formControlName="flat" class="form-control" id="flat" placeholder="flat" required>
+                    <label for="flat">Apartment/Flat No.</label>
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input type="text" name="street" formControlName="street" class="form-control" id="floatingInput1" placeholder="street" required>
+                    <label for="floatingInput1">Street</label>
+                  </div>
+                  <div class="form-floating mb-3">
+                    <input type="text"name="state" formControlName="state" class="form-control" id="floatingInput2" placeholder="state" required>
+                    <label for="floatingInput2">State</label>
+                  </div>
+                  <!-- submit btn -->
+                  <div>
+                    <input type="submit" class="btn btn-primary" value="Proceed to payment">
+                  </div>
+            </form>
+          </div>
+        </div>
+        <!-- after payment clicked -->
+        <div class="modal-body " *ngIf="proceedToBtnStatus">
+            <h6 class="text-success">Payment Details</h6>
+            <!-- delivery address -->
+            <div class="mt-3 border rounded-2 p-3">
+                <h6>Delivery Address:</h6>
+                <p> {{username}} </p>
+                <p> {{flat}},{{street}}</p>
+                <p> {{state}} </p>
+            </div>
+        </div>
+        <!-- total and offer -->
+        <div class="d-flex justify-content-between mt-">
+            <h6 class="ms-3">Total Amount: <span class="text-danger fs-4 fw-bolder">${{CartTotalPrice}}</span></h6>
+            <button *ngIf="!offerClickedStatus" (click)="offerclicked()" class="btn text-primary"><i class="fa-solid fa-tag fa-fade"></i>Offers</button>
+        </div>
+
+        <!-- discount coupons div -->
+        <div *ngIf="offerClickedStatus" class="d-flex justify-content-center mt-3 mb-2">
+            <div *ngIf="!discountClickStatus">
+                <!-- dis 10% -->
+                <img *ngIf="CartTotalPrice<500"  (click)="discount10()" type="button" width="100px" height="100px" src="https://media.istockphoto.com/id/498716910/vector/red-vector-10-discount-price-sign.jpg?s=612x612&w=0&k=20&c=IKBlFixFLG_QbD__t3RHwmvfEcGsQhp0mbrqbKo_rAM=" alt="">
+                <!-- dis 50% -->
+                <img *ngIf="CartTotalPrice>=500" (click)="discount50()" type="button" width="85px" height="85px" src="https://www.pngkit.com/png/full/248-2485332_png-discount-label-icon-50-off.png" alt="">
+            </div>
+        </div>
+
+        <!-- payment succsess -->
+        <div class="m-2" *ngIf="showSuccess">
+            <p class="text-success fs-3"> Transcation Completed Succsessfully... Your Order has been confirmed, Thank you for shopping with us.</p>
+        </div>
+
+        <!-- payment cancel -->
+        <div class="m-2" *ngIf="showCancel">
+            <p class="text-warning fs-3"> Transcation has been cancelled.</p>
+        </div>
+
+        <!-- payment error -->
+        <div class="m-2" *ngIf="showError">
+            <p class="text-danger fs-3"> Transcation Failed.</p>
+        </div>
+
+        <!-- make payment btn -->
+        <div *ngIf="proceedToBtnStatus" class="modal-footer">
+            <button *ngIf="!showpaypal" class="btn btn-primary" (click)="makepayment()">Make Payment</button>
+        </div>
+        <!-- paypal code -->
+        <div class="m-2">
+            <ngx-paypal *ngIf="showpaypal" [config]="payPalConfig"></ngx-paypal>
+        </div>
+      </div>
+    </div>
+  </div>
